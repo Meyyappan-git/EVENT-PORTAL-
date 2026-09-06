@@ -1,0 +1,260 @@
+{
+  "info": {
+    "name": "CSEA Quiz Platform API",
+    "description": "Backend contract for participant/admin quiz platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Participant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Dev\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"PARTICIPANT\"\n}"
+            },
+            "url": { "raw": "http://localhost:5000/api/auth/register", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "register"] }
+          },
+          "response": [{
+            "name": "Example Success",
+            "originalRequest": { "method": "POST", "header": [], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Alice Dev\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"PARTICIPANT\"\n}" }, "url": { "raw": "http://localhost:5000/api/auth/register", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "register"] } },
+            "status": "OK",
+            "code": 201,
+            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"67d12f0ef331fe53f7319b2b\",\n      \"name\": \"Alice Dev\",\n      \"email\": \"alice@example.com\",\n      \"role\": \"PARTICIPANT\",\n      \"teamId\": null\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  },\n  \"error\": null\n}"
+          }]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "http://localhost:5000/api/auth/login", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "login"] }
+          },
+          "response": [{
+            "name": "Example Success",
+            "originalRequest": { "method": "POST", "header": [], "body": { "mode": "raw", "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"Password123!\"\n}" }, "url": { "raw": "http://localhost:5000/api/auth/login", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "login"] } },
+            "status": "OK",
+            "code": 200,
+            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"67d12f0ef331fe53f7319b2b\",\n      \"name\": \"Alice Dev\",\n      \"email\": \"alice@example.com\",\n      \"role\": \"PARTICIPANT\",\n      \"teamId\": null\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  },\n  \"error\": null\n}"
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "item": [
+        {
+          "name": "Create Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer <jwt>" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Team Alpha\"\n}" },
+            "url": { "raw": "http://localhost:5000/api/teams/create", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "teams", "create"] }
+          },
+          "response": [{
+            "name": "Example Success",
+            "status": "OK",
+            "code": 201,
+            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d12f0ef331fe53f7319b2b\",\n    \"name\": \"Team Alpha\",\n    \"code\": \"RY4LSC\",\n    \"members\": [\"67d12f0ef331fe53f7319b2b\"],\n    \"score\": 0,\n    \"lastSubmissionAt\": null\n  },\n  \"error\": null\n}"
+          }]
+        },
+        {
+          "name": "Join Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer <jwt>" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"RY4LSC\"\n}" },
+            "url": { "raw": "http://localhost:5000/api/teams/join", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "teams", "join"] }
+          },
+          "response": [{
+            "name": "Example Success",
+            "status": "OK",
+            "code": 200,
+            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d12f0ef331fe53f7319b2b\",\n    \"name\": \"Team Alpha\",\n    \"code\": \"RY4LSC\",\n    \"members\": [\"67d12f0ef331fe53f7319b2b\", \"67d13aaef331fe53f7319c3d\"],\n    \"score\": 0,\n    \"lastSubmissionAt\": null\n  },\n  \"error\": null\n}"
+          }]
+        },
+        {
+          "name": "Get My Team",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <jwt>" }],
+            "url": { "raw": "http://localhost:5000/api/teams/me", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "teams", "me"] }
+          },
+          "response": [{
+            "name": "Example Success",
+            "status": "OK",
+            "code": 200,
+            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d12f0ef331fe53f7319b2b\",\n    \"name\": \"Team Alpha\",\n    \"code\": \"RY4LSC\",\n    \"members\": [\n      {\n        \"_id\": \"67d12f0ef331fe53f7319b2b\",\n        \"name\": \"Alice Dev\",\n        \"email\": \"alice@example.com\",\n        \"role\": \"PARTICIPANT\"\n      }\n    ],\n    \"score\": 0,\n    \"lastSubmissionAt\": null\n  },\n  \"error\": null\n}"
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer <jwt>" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"CSEA Finals\"\n}" },
+            "url": { "raw": "http://localhost:5000/api/events", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "events"] }
+          },
+          "response": [{
+            "name": "Example Success",
+            "status": "OK",
+            "code": 201,
+            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d12f0ef331fe53f7319b2b\",\n    \"name\": \"CSEA Finals\",\n    \"status\": \"UPCOMING\",\n    \"currentRoundId\": null\n  },\n  \"error\": null\n}"
+          }]
+        },
+        {
+          "name": "Set Current Round",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer <jwt>" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"roundId\": \"67d13aaef331fe53f7319c3d\"\n}" },
+            "url": { "raw": "http://localhost:5000/api/events/67d12f0ef331fe53f7319b2b/current-round", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "events", "67d12f0ef331fe53f7319b2b", "current-round"] }
+          },
+          "response": [{
+            "name": "Example Success",
+            "status": "OK",
+            "code": 200,
+            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d12f0ef331fe53f7319b2b\",\n    \"currentRoundId\": \"67d13aaef331fe53f7319c3d\",\n    \"status\": \"ACTIVE\"\n  },\n  \"error\": null\n}"
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Rounds",
+      "item": [
+        {
+          "name": "Create Round",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer <jwt>" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"67d12f0ef331fe53f7319b2b\",\n  \"name\": \"Round 1\",\n  \"status\": \"OPEN\",\n  \"questionIds\": []\n}" },
+            "url": { "raw": "http://localhost:5000/api/rounds", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "rounds"] }
+          },
+          "response": [{
+            "name": "Example Success",
+            "status": "OK",
+            "code": 201,
+            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d13aaef331fe53f7319c3d\",\n    \"eventId\": \"67d12f0ef331fe53f7319b2b\",\n    \"name\": \"Round 1\",\n    \"status\": \"OPEN\",\n    \"questionIds\": []\n  },\n  \"error\": null\n}"
+          }]
+        },
+        {
+          "name": "Open Round",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer <jwt>" }],
+            "url": { "raw": "http://localhost:5000/api/rounds/67d13aaef331fe53f7319c3d/open", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "rounds", "67d13aaef331fe53f7319c3d", "open"] }
+          },
+          "response": [{ "name": "Example Success", "status": "OK", "code": 200, "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"OPEN\"\n  },\n  \"error\": null\n}" }]
+        },
+        {
+          "name": "Close Round",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer <jwt>" }],
+            "url": { "raw": "http://localhost:5000/api/rounds/67d13aaef331fe53f7319c3d/close", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "rounds", "67d13aaef331fe53f7319c3d", "close"] }
+          },
+          "response": [{ "name": "Example Success", "status": "OK", "code": 200, "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"CLOSED\"\n  },\n  \"error\": null\n}" }]
+        }
+      ]
+    },
+    {
+      "name": "Questions",
+      "item": [
+        {
+          "name": "Create Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer <jwt>" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"roundId\": \"67d13aaef331fe53f7319c3d\",\n  \"title\": \"What is 2 + 2?\",\n  \"description\": \"Solve the arithmetic puzzle.\",\n  \"type\": \"MCQ\",\n  \"options\": [\"3\", \"4\", \"5\", \"6\"],\n  \"correctAnswer\": \"4\",\n  \"points\": 10,\n  \"order\": 1\n}" },
+            "url": { "raw": "http://localhost:5000/api/questions", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "questions"] }
+          },
+          "response": [{ "name": "Example Success", "status": "OK", "code": 201, "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d13aaef331fe53f7319c4e\",\n    \"title\": \"What is 2 + 2?\",\n    \"description\": \"Solve the arithmetic puzzle.\",\n    \"type\": \"MCQ\",\n    \"options\": [\"3\", \"4\", \"5\", \"6\"],\n    \"correctAnswer\": \"4\",\n    \"points\": 10,\n    \"order\": 1\n  },\n  \"error\": null\n}" }]
+        },
+        {
+          "name": "Get Current Question",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <jwt>" }],
+            "url": { "raw": "http://localhost:5000/api/questions/current?roundId=67d13aaef331fe53f7319c3d", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "questions", "current"], "query": [{ "key": "roundId", "value": "67d13aaef331fe53f7319c3d" }] }
+          },
+          "response": [{ "name": "Example Success", "status": "OK", "code": 200, "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d13aaef331fe53f7319c4e\",\n    \"title\": \"What is 2 + 2?\",\n    \"description\": \"Solve the arithmetic puzzle.\",\n    \"type\": \"MCQ\",\n    \"options\": [\"3\", \"4\", \"5\", \"6\"],\n    \"correctAnswer\": \"4\",\n    \"points\": 10,\n    \"order\": 1\n  },\n  \"error\": null\n}" }]
+        }
+      ]
+    },
+    {
+      "name": "Submissions",
+      "item": [
+        {
+          "name": "Submit Answer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer <jwt>" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"questionId\": \"67d13aaef331fe53f7319c4e\",\n  \"answer\": \"4\"\n}" },
+            "url": { "raw": "http://localhost:5000/api/submissions", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "submissions"] }
+          },
+          "response": [{ "name": "Example Success", "status": "OK", "code": 201, "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"67d14cfef331fe53f7319d2a\",\n    \"teamId\": \"67d12f0ef331fe53f7319b2b\",\n    \"questionId\": \"67d13aaef331fe53f7319c4e\",\n    \"answer\": \"4\",\n    \"isCorrect\": true,\n    \"pointsAwarded\": 10,\n    \"submittedAt\": \"2026-09-06T12:00:00.000Z\"\n  },\n  \"error\": null\n}" }]
+        },
+        {
+          "name": "List Submissions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <jwt>" }],
+            "url": { "raw": "http://localhost:5000/api/submissions?teamId=67d12f0ef331fe53f7319b2b&questionId=67d13aaef331fe53f7319c4e", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "submissions"], "query": [
+              { "key": "teamId", "value": "67d12f0ef331fe53f7319b2b" },
+              { "key": "questionId", "value": "67d13aaef331fe53f7319c4e" }
+            ] }
+          },
+          "response": [{ "name": "Example Success", "status": "OK", "code": 200, "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"67d14cfef331fe53f7319d2a\",\n      \"teamId\": {\n        \"_id\": \"67d12f0ef331fe53f7319b2b\",\n        \"name\": \"Team Alpha\",\n        \"code\": \"RY4LSC\"\n      },\n      \"questionId\": {\n        \"_id\": \"67d13aaef331fe53f7319c4e\",\n        \"title\": \"What is 2 + 2?\"\n      },\n      \"answer\": \"4\",\n      \"isCorrect\": true,\n      \"pointsAwarded\": 10,\n      \"submittedAt\": \"2026-09-06T12:00:00.000Z\"\n    }\n  ],\n  \"error\": null\n}" }]
+        }
+      ]
+    },
+    {
+      "name": "Leaderboard",
+      "item": [
+        {
+          "name": "Get Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <jwt>" }],
+            "url": { "raw": "http://localhost:5000/api/leaderboard", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "leaderboard"] }
+          },
+          "response": [{ "name": "Example Success", "status": "OK", "code": 200, "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"rank\": 1,\n      \"teamId\": \"67d12f0ef331fe53f7319b2b\",\n      \"name\": \"Team Alpha\",\n      \"code\": \"RY4LSC\",\n      \"score\": 250,\n      \"lastSubmissionAt\": \"2026-09-06T12:00:00.000Z\",\n      \"members\": []\n    }\n  ],\n  \"error\": null\n}" }]
+        }
+      ]
+    }
+  ]
+}
