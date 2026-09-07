@@ -1,21 +1,42 @@
 const mongoose = require('mongoose');
-const { ADMIN_MONGODB_URI, PARTICIPANT_MONGODB_URI } = require('./env');
 
-const adminConnection = mongoose.createConnection(ADMIN_MONGODB_URI, {
-  serverSelectionTimeoutMS: 15000,
-});
+let adminConnection = null;
+let participantConnection = null;
 
-const participantConnection = mongoose.createConnection(PARTICIPANT_MONGODB_URI, {
-  serverSelectionTimeoutMS: 15000,
-});
+function getConnections() {
+  if (!adminConnection || !participantConnection) {
+    // Require env.js here to get the latest environment variables
+    const { ADMIN_MONGODB_URI, PARTICIPANT_MONGODB_URI } = require('./env');
+    
+    adminConnection = mongoose.createConnection(ADMIN_MONGODB_URI, {
+      serverSelectionTimeoutMS: 15000,
+    });
 
-async function connectMongo() {
-  await Promise.all([
-    adminConnection.asPromise(),
-    participantConnection.asPromise(),
-  ]);
+    participantConnection = mongoose.createConnection(PARTICIPANT_MONGODB_URI, {
+      serverSelectionTimeoutMS: 15000,
+    });
+  }
 
   return { adminConnection, participantConnection };
 }
 
-module.exports = { connectMongo, adminConnection, participantConnection };
+async function connectMongo() {
+  const { adminConnection: admin, participantConnection: participant } = getConnections();
+  
+  await Promise.all([
+    admin.asPromise(),
+    participant.asPromise(),
+  ]);
+
+  return { adminConnection: admin, participantConnection: participant };
+}
+
+module.exports = {
+  connectMongo,
+  get adminConnection() {
+    return getConnections().adminConnection;
+  },
+  get participantConnection() {
+    return getConnections().participantConnection;
+  },
+};

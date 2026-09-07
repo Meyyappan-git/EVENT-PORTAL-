@@ -10,6 +10,15 @@ const { getCurrentQuestionForTeam } = require('../services/unlock.service');
 const questionService = require('../services/question.service');
 const { loginUser } = require('../services/auth.service');
 const User = require('../models/User');
+const {
+  hashPassword,
+  verifyPassword,
+  sanitizeInput,
+  validateLoginInput,
+  generateAuthToken,
+  verifyCredentials,
+  findUserByCredential,
+} = require('../services/auth.security');
 
 test('returns the first unanswered question in round order', () => {
   const round = {
@@ -59,6 +68,59 @@ test('rejects login when selected role does not match the account role', async (
   } finally {
     User.findOne = originalFindOne;
   }
+});
+
+test('hashes and verifies passwords securely', async () => {
+  const password = 'Password123!';
+  const hashed = await hashPassword(password);
+
+  assert.notEqual(hashed, password);
+  assert.equal(await verifyPassword(password, hashed), true);
+  assert.equal(await verifyPassword('WrongPassword123!', hashed), false);
+});
+
+test('validates login inputs and sanitizes untrusted values', () => {
+  assert.throws(() => validateLoginInput('not-an-email', 'Password123!'), /valid email/i);
+  assert.throws(() => validateLoginInput('user@example.com', 'short'), /at least 8 characters/i);
+
+  const sanitized = sanitizeInput(" <script>alert('xss')</script> ");
+  assert.equal(sanitized.includes('<'), false);
+  assert.equal(sanitized.includes('alert'), true);
+  assert.equal(sanitized.trim(), sanitized);
+});
+
+test('finds and verifies a user credential without leaking account details', async () => {
+  const storedUser = {
+    _id: 'user-1',
+    email: 'alice@example.com',
+    name: 'Alice',
+    role: 'PARTICIPANT',
+    passwordHash: await hashPassword('Password123!'),
+  };
+
+  const userModel = {
+    findOne: async (query) => {
+      if (query.email === 'alice@example.com') return storedUser;
+      return null;
+    },
+  };
+
+  const foundUser = await findUserByCredential('alice@example.com', userModel);
+  assert.ok(foundUser);
+  assert.equal(foundUser.email, 'alice@example.com');
+
+  const valid = await verifyCredentials({ email: 'alice@example.com' }, 'Password123!', userModel);
+  assert.equal(valid.user.email, 'alice@example.com');
+
+  const invalid = await verifyCredentials({ email: 'alice@example.com' }, 'WrongPassword123!', userModel);
+  assert.equal(invalid.error, 'Invalid credentials');
+});
+
+test('creates a signed auth token with user payload data', () => {
+  const token = generateAuthToken('user-1', { role: 'ADMIN' });
+
+  assert.ok(token);
+  assert.match(token, /^[A-Za-z0-9-_.]+$/);
 });
 
 test('uses the active event round when no roundId is provided', async () => {

@@ -2,14 +2,11 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
-const app = require('./app');
-const { PORT, CLIENT_URL } = require('./config/env');
-const { attachSocketServer } = require('./sockets');
-
-let mongoMemoryServer;
+let app;
 
 async function startServer() {
   try {
+    // Set up MongoMemoryServer BEFORE requiring app and env
     if (!process.env.ADMIN_MONGODB_URI || !process.env.PARTICIPANT_MONGODB_URI) {
       const adminMemoryServer = await MongoMemoryServer.create({
         binary: { version: '7.0.24' },
@@ -26,7 +23,12 @@ async function startServer() {
       console.log(`Participant MongoMemoryServer started at ${process.env.PARTICIPANT_MONGODB_URI}`);
     }
 
+    // Now require app and env AFTER setting up MongoMemoryServer
+    app = require('./app');
+    const { PORT, CLIENT_URL } = require('./config/env');
+    const { attachSocketServer } = require('./sockets');
     const { connectMongo } = require('./config/db');
+
     await connectMongo();
     console.log('Admin and participant MongoDB connections successful');
 

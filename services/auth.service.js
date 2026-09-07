@@ -1,7 +1,13 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/env');
+const authSecurity = require('./auth.security');
+const {
+  hashPassword,
+  verifyPassword,
+  validateLoginInput,
+  findUserByCredential,
+  generateAuthToken,
+  sanitizeInput,
+} = authSecurity;
 
 function getUserModelByRole(role) {
   const normalizedRole = String(role || 'PARTICIPANT').toUpperCase();
@@ -9,22 +15,32 @@ function getUserModelByRole(role) {
 }
 
 async function registerUser({ name, email, password, role = 'PARTICIPANT' }) {
-  const normalizedEmail = String(email).trim().toLowerCase();
-  const UserModel = getUserModelByRole(role);
+  const normalizedEmail = sanitizeInput(email).toLowerCase();
+  const normalizedName = sanitizeInput(name);
+  const selectedRole = String(role || 'PARTICIPANT').toUpperCase();
+  const UserModel = getUserModelByRole(selectedRole);
 
-  const existingUser = await User.findOne({ email: normalizedEmail, role });
+  if (!normalizedName) {
+    const err = new Error('Name is required');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  validateLoginInput(normalizedEmail, password);
+
+  const existingUser = await User.findOne({ email: normalizedEmail, role: selectedRole });
   if (existingUser) {
     const err = new Error('User already exists');
     err.statusCode = 409;
     throw err;
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await hashPassword(password);
   const user = await UserModel.create({
-    name: String(name).trim(),
+    name: normalizedName,
     email: normalizedEmail,
     passwordHash,
-    role,
+    role: selectedRole,
   });
 
   return {
@@ -35,13 +51,16 @@ async function registerUser({ name, email, password, role = 'PARTICIPANT' }) {
       role: user.role,
       teamId: user.teamId,
     },
-    token: jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN }),
+    token: generateAuthToken(user._id, { role: user.role }),
   };
 }
 
 async function loginUser({ email, password, role }) {
-  const normalizedEmail = String(email).trim().toLowerCase();
+  const normalizedEmail = sanitizeInput(email).toLowerCase();
   const selectedRole = role ? String(role).toUpperCase() : 'PARTICIPANT';
+
+  validateLoginInput(normalizedEmail, password);
+
   const user = await User.findOne({ email: normalizedEmail, role: selectedRole });
 
   if (!user) {
@@ -56,7 +75,7 @@ async function loginUser({ email, password, role }) {
     throw err;
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+  const isPasswordValid = await verifyPassword(password, user.passwordHash);
   if (!isPasswordValid) {
     const err = new Error('Invalid credentials');
     err.statusCode = 401;
@@ -71,8 +90,8 @@ async function loginUser({ email, password, role }) {
       role: user.role,
       teamId: user.teamId,
     },
-    token: jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN }),
+    token: generateAuthToken(user._id, { role: user.role }),
   };
 }
 
-module.exports = { registerUser, loginUser };
+module.exports = { registerUser, loginUser, findUserByCredential, validateLoginInput, hashPassword, verifyPassword, generateAuthToken };
