@@ -22,8 +22,6 @@ export default function ParticipantDashboard() {
   const [teamLoading, setTeamLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const hasCompetitionData = Boolean(currentQuestion);
-
   const loadTeam = async () => {
     try {
       const response = await axiosInstance.get('/api/teams/me');
@@ -80,6 +78,16 @@ export default function ParticipantDashboard() {
     socket.on('leaderboard:update', handleLeaderboardUpdate);
     return () => socket.off('leaderboard:update', handleLeaderboardUpdate);
   }, [socket]);
+
+  useEffect(() => {
+    const refreshCompetitionData = () => {
+      loadCurrentQuestion();
+      loadLeaderboard();
+    };
+    const refreshInterval = window.setInterval(refreshCompetitionData, 10000);
+
+    return () => window.clearInterval(refreshInterval);
+  }, []);
 
   const teamStats = useMemo(() => {
     const members = team?.members?.length ?? 0;
@@ -152,25 +160,13 @@ export default function ParticipantDashboard() {
   };
 
   const participantModules = [
-    { id: 'overview', label: 'Overview', disabled: !hasCompetitionData },
+    { id: 'overview', label: 'Overview', disabled: false },
     { id: 'team', label: 'Team', disabled: false },
-    { id: 'question', label: 'Question', disabled: !hasCompetitionData },
-    { id: 'leaderboard', label: 'Leaderboard', disabled: !hasCompetitionData },
+    { id: 'question', label: 'Question', disabled: false },
+    { id: 'leaderboard', label: 'Leaderboard', disabled: false },
   ];
 
   const renderModule = () => {
-    if (!hasCompetitionData && activeModule !== 'team') {
-      return (
-        <div className="rounded-[26px] border border-dashed border-cyan-500/40 bg-slate-900/70 p-8 text-center shadow-xl shadow-slate-950/20">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300">Competition not started</p>
-          <h2 className="mt-3 text-2xl font-bold text-white">Waiting for admin setup</h2>
-          <p className="mt-3 text-sm text-slate-300">
-            The event details and questions will appear here only after the admin creates the event, round, and question.
-          </p>
-        </div>
-      );
-    }
-
     if (activeModule === 'team') {
       return (
         <div className="rounded-[26px] border border-white/10 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/20">
@@ -270,7 +266,6 @@ export default function ParticipantDashboard() {
                 </div>
               ) : (
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-300">Your answer</label>
                   <label htmlFor="question-answer" className="mb-2 block text-sm font-medium text-slate-200">
                     Your answer
                   </label>
@@ -341,7 +336,6 @@ export default function ParticipantDashboard() {
                   </div>
                 ) : (
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">Your answer</label>
                     <label htmlFor="overview-question-answer" className="mb-2 block text-sm font-medium text-slate-200">
                       Your answer
                     </label>
@@ -390,11 +384,16 @@ export default function ParticipantDashboard() {
             ) : (
               <div className="mt-5 space-y-4">
                 <form onSubmit={handleCreateTeam} className="space-y-3">
+                  <label htmlFor="overview-team-name" className="mb-2 block text-sm font-medium text-slate-200">
+                    Team name
+                  </label>
                   <input
+                    id="overview-team-name"
                     value={form.name}
                     onChange={(event) => setForm((previous) => ({ ...previous, name: event.target.value }))}
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
-                    placeholder="New team name"
+                    className={participantInputClass}
+                    placeholder="Enter a team name"
+                    autoComplete="organization"
                     required
                   />
                   <button type="submit" disabled={teamLoading} className="w-full rounded-2xl bg-slate-100 px-4 py-3 font-semibold text-slate-950 transition hover:bg-white disabled:opacity-60">
@@ -409,11 +408,16 @@ export default function ParticipantDashboard() {
                 </div>
 
                 <form onSubmit={handleJoinTeam} className="space-y-3">
+                  <label htmlFor="overview-team-code" className="mb-2 block text-sm font-medium text-slate-200">
+                    Team code
+                  </label>
                   <input
+                    id="overview-team-code"
                     value={form.code}
                     onChange={(event) => setForm((previous) => ({ ...previous, code: event.target.value }))}
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
-                    placeholder="Enter team code"
+                    className={`${participantInputClass} uppercase tracking-[0.16em]`}
+                    placeholder="Enter the code shared by your team"
+                    autoComplete="off"
                     required
                   />
                   <button type="submit" disabled={teamLoading} className="w-full rounded-2xl border border-cyan-500 bg-cyan-500/10 px-4 py-3 font-semibold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-60">
