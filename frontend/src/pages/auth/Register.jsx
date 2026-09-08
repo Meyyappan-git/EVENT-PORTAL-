@@ -108,7 +108,7 @@ export default function Register({ role = 'PARTICIPANT' }) {
                 type="text"
                 value={form.name}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30"
+                className="w-full rounded-2xl border border-slate-200 bg-gray-800 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30"
                 placeholder="Alex Morgan"
                 required
               />
@@ -124,7 +124,7 @@ export default function Register({ role = 'PARTICIPANT' }) {
                 type="email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30"
+                className="w-full rounded-2xl border border-slate-200 bg-gray-800 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30"
                 placeholder="you@example.com"
                 required
               />
@@ -140,8 +140,9 @@ export default function Register({ role = 'PARTICIPANT' }) {
                 type="password"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30"
-                placeholder="Minimum 8 characters"
+                className="w-full rounded-2xl border border-slate-200 bg-gray-800 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30"
+                placeholder="Create a password"
+                autoComplete="new-password"
                 required
               />
             </div>

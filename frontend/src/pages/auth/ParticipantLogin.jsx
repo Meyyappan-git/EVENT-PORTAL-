@@ -91,7 +91,7 @@ export default function ParticipantLogin() {
                 type="email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
+                className="w-full rounded-2xl border border-slate-200 bg-gray-800 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
                 placeholder="you@example.com"
                 required
               />
@@ -107,8 +107,9 @@ export default function ParticipantLogin() {
                 type="password"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
-                placeholder="••••••••"
+                className="w-full rounded-2xl border border-slate-200 bg-gray-800 px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
+                placeholder="Enter your password"
+                autoComplete="current-password"
                 required
               />
             </div>

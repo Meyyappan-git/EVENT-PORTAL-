@@ -55,7 +55,8 @@ textarea {
 input,
 select,
 textarea {
-  color: #0f172a;
+  color: #ffffff;
+  font-weight: bold;
 }
 
 ::-webkit-scrollbar {

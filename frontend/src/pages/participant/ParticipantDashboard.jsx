@@ -6,6 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 
 const emptyForm = { name: '', code: '' };
+const participantInputClass =
+  'w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white caret-cyan-300 placeholder:text-slate-400 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30';
 
 export default function ParticipantDashboard() {
   const { user, logout } = useAuth();
@@ -50,7 +52,7 @@ export default function ParticipantDashboard() {
     try {
       const response = await axiosInstance.get('/api/leaderboard');
       setLeaderboard(response.data.data || []);
-    } catch (err) {
+    } catch {
       setLeaderboard([]);
     }
   };
@@ -95,7 +97,7 @@ export default function ParticipantDashboard() {
     setTeamLoading(true);
 
     try {
-      await axiosInstance.post('/api/teams/create', { name: form.name });
+      await axiosInstance.post('/api/teams/create', { name: form.name.trim() });
       setSuccess('Team created successfully');
       setForm(emptyForm);
       await loadTeam();
@@ -113,7 +115,7 @@ export default function ParticipantDashboard() {
     setTeamLoading(true);
 
     try {
-      await axiosInstance.post('/api/teams/join', { code: form.code });
+      await axiosInstance.post('/api/teams/join', { code: form.code.trim().toUpperCase() });
       setSuccess('Joined team successfully');
       setForm(emptyForm);
       await loadTeam();
@@ -126,7 +128,10 @@ export default function ParticipantDashboard() {
 
   const handleSubmitAnswer = async (event) => {
     event.preventDefault();
-    if (!currentQuestion) return;
+    if (!currentQuestion || !answer.trim()) {
+      setError('Please choose or enter an answer before submitting.');
+      return;
+    }
 
     setError('');
     setSuccess('');
@@ -191,11 +196,16 @@ export default function ParticipantDashboard() {
           ) : (
             <div className="mt-5 space-y-4">
               <form onSubmit={handleCreateTeam} className="space-y-3">
-                <input
+                  <label htmlFor="team-name" className="mb-2 block text-sm font-medium text-slate-200">
+                    Team name
+                  </label>
+                  <input
+                    id="team-name"
                   value={form.name}
                   onChange={(event) => setForm((previous) => ({ ...previous, name: event.target.value }))}
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
-                  placeholder="New team name"
+                  className={participantInputClass}
+                  placeholder="Enter a team name"
+                  autoComplete="organization"
                   required
                 />
                 <button type="submit" disabled={teamLoading} className="w-full rounded-2xl bg-slate-100 px-4 py-3 font-semibold text-slate-950 transition hover:bg-white disabled:opacity-60">
@@ -210,11 +220,16 @@ export default function ParticipantDashboard() {
               </div>
 
               <form onSubmit={handleJoinTeam} className="space-y-3">
-                <input
+                  <label htmlFor="team-code" className="mb-2 block text-sm font-medium text-slate-200">
+                    Team code
+                  </label>
+                  <input
+                    id="team-code"
                   value={form.code}
                   onChange={(event) => setForm((previous) => ({ ...previous, code: event.target.value }))}
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
-                  placeholder="Enter team code"
+                  className={`${participantInputClass} uppercase tracking-[0.16em]`}
+                  placeholder="Enter the code shared by your team"
+                  autoComplete="off"
                   required
                 />
                 <button type="submit" disabled={teamLoading} className="w-full rounded-2xl border border-cyan-500 bg-cyan-500/10 px-4 py-3 font-semibold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-60">
@@ -256,11 +271,16 @@ export default function ParticipantDashboard() {
               ) : (
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-300">Your answer</label>
+                  <label htmlFor="question-answer" className="mb-2 block text-sm font-medium text-slate-200">
+                    Your answer
+                  </label>
                   <input
+                    id="question-answer"
                     value={answer}
                     onChange={(event) => setAnswer(event.target.value)}
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
-                    placeholder="Type your answer"
+                    className={participantInputClass}
+                    placeholder="Type your answer here"
+                    autoComplete="off"
                   />
                 </div>
               )}
@@ -322,11 +342,16 @@ export default function ParticipantDashboard() {
                 ) : (
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-300">Your answer</label>
+                    <label htmlFor="overview-question-answer" className="mb-2 block text-sm font-medium text-slate-200">
+                      Your answer
+                    </label>
                     <input
+                      id="overview-question-answer"
                       value={answer}
                       onChange={(event) => setAnswer(event.target.value)}
-                      className="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30"
-                      placeholder="Type your answer"
+                      className={participantInputClass}
+                      placeholder="Type your answer here"
+                      autoComplete="off"
                     />
                   </div>
                 )}
