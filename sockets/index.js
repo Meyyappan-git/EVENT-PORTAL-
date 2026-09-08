@@ -21,11 +21,14 @@ function attachSocketServer(io) {
   });
 
   io.on('connection', (socket) => {
-    socket.on('join-event', ({ eventId }) => {
+    const joinEvent = ({ eventId } = {}) => {
       if (eventId) {
         socket.join(`event:${eventId}`);
       }
-    });
+    };
+
+    socket.on('join-event', joinEvent);
+    socket.on('join-room', joinEvent);
   });
 }
 

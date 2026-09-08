@@ -6,7 +6,9 @@ async function getEvents() {
 }
 
 async function createEvent({ name }) {
-  return Event.create({ name, status: 'UPCOMING' });
+  const event = await Event.create({ name, status: 'UPCOMING' });
+  global.io?.emit('portal-updated', { type: 'event', action: 'created', eventId: event._id });
+  return event;
 }
 
 async function setCurrentRound({ eventId, roundId }) {
@@ -27,6 +29,7 @@ async function setCurrentRound({ eventId, roundId }) {
   event.currentRoundId = round._id;
   event.status = 'ACTIVE';
   await event.save();
+  global.io?.emit('portal-updated', { type: 'event', action: 'updated', eventId: event._id, roundId });
 
   return event;
 }
@@ -35,4 +38,4 @@ async function getEventById(eventId) {
   return Event.findById(eventId).populate('currentRoundId');
 }
 
-module.exports = { createEvent, setCurrentRound, getEventById };
+module.exports = { getEvents, createEvent, setCurrentRound, getEventById };

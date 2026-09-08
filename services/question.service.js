@@ -24,6 +24,7 @@ async function createQuestion({ roundId, title, description, type, options = [],
 
   round.questionIds.push(question._id);
   await round.save();
+  global.io?.emit('portal-updated', { type: 'question', action: 'created', roundId, questionId: question._id });
 
   return question;
 }
@@ -42,6 +43,7 @@ async function updateQuestion(questionId, payload) {
   }
 
   await question.save();
+  global.io?.emit('portal-updated', { type: 'question', action: 'updated', questionId: question._id });
   return question;
 }
 
@@ -60,6 +62,7 @@ async function deleteQuestion(questionId) {
   }
 
   await Question.findByIdAndDelete(questionId);
+  global.io?.emit('portal-updated', { type: 'question', action: 'deleted', questionId });
   return { deleted: true };
 }
 

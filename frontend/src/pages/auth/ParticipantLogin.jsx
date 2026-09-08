@@ -42,7 +42,7 @@ export default function ParticipantLogin() {
   ];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10">
+    <div className="auth-page flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10">
       <div className="grid w-full max-w-6xl overflow-hidden rounded-[32px] border border-white/10 bg-slate-900/70 shadow-2xl shadow-cyan-950/30 backdrop-blur-xl lg:grid-cols-[1.1fr_0.9fr]">
         <div className="relative hidden overflow-hidden bg-gradient-to-br from-cyan-500 via-sky-600 to-violet-700 p-10 lg:flex lg:items-center lg:justify-center">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.3),transparent_22%)]" />

@@ -76,6 +76,10 @@ async function submitAnswer({ teamId, questionId, answer }) {
     submittedAt: new Date(),
   });
 
+  if (global.io) {
+    global.io.emit('submission-received', submission);
+  }
+
   if (isCorrect) {
     team.score += pointsAwarded;
     team.lastSubmissionAt = submission.submittedAt;

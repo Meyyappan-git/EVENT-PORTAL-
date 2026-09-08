@@ -1,0 +1,55 @@
+services:
+  mongo-admin:
+    image: mongo:7.0
+    container_name: mongo-admin
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-csea}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-change-me}
+      MONGO_INITDB_DATABASE: csea_admin
+    volumes:
+      - ./mongo-admin-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  mongo-participant:
+    image: mongo:7.0
+    container_name: mongo-participant
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-csea}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-change-me}
+      MONGO_INITDB_DATABASE: csea_participant
+    volumes:
+      - ./mongo-participant-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # Administrative helper container on the same network as both databases.
+  # It keeps the MongoDB shell available for operational checks without sharing data files.
+  mongo:
+    image: mongo:7.0
+    container_name: mongo-tools
+    restart: "no"
+    depends_on:
+      mongo-admin:
+        condition: service_healthy
+      mongo-participant:
+        condition: service_healthy
+    volumes:
+      - ./mongo-admin-data:/mnt/admin-data
+      - ./mongo-participant-data:/mnt/participant-data
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["echo 'MongoDB containers are healthy'; tail -f /dev/null"]

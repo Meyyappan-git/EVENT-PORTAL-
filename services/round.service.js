@@ -13,7 +13,9 @@ async function createRound({ eventId, name, status = 'LOCKED', questionIds = [] 
     throw err;
   }
 
-  return Round.create({ eventId, name, status, questionIds });
+  const round = await Round.create({ eventId, name, status, questionIds });
+  global.io?.emit('portal-updated', { type: 'round', action: 'created', eventId, roundId: round._id });
+  return round;
 }
 
 async function updateRound(roundId, payload) {
@@ -26,6 +28,7 @@ async function updateRound(roundId, payload) {
 
   Object.assign(round, payload);
   await round.save();
+  global.io?.emit('portal-updated', { type: 'round', action: 'updated', roundId: round._id });
   return round;
 }
 
@@ -51,6 +54,7 @@ async function openRound(roundId) {
 
   round.status = 'OPEN';
   await round.save();
+  global.io?.emit('portal-updated', { type: 'round', action: 'opened', roundId: round._id });
   return round;
 }
 
@@ -64,7 +68,8 @@ async function closeRound(roundId) {
 
   round.status = 'CLOSED';
   await round.save();
+  global.io?.emit('portal-updated', { type: 'round', action: 'closed', roundId: round._id });
   return round;
 }
 
-module.exports = { createRound, updateRound, deleteRound, openRound, closeRound };
+module.exports = { getRounds, createRound, updateRound, deleteRound, openRound, closeRound };

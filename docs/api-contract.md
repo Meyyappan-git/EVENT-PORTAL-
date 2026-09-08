@@ -2,7 +2,7 @@
 
 ## Base URL
 
-- Local: http://localhost:5000/api
+- Local: http://localhost:5011/api
 
 ## Response format
 
@@ -25,6 +25,18 @@ or
   "error": "Message"
 }
 ```
+
+## Socket.IO
+
+Connect to `http://localhost:5011` with a JWT:
+
+```js
+io('http://localhost:5011', { auth: { token } });
+```
+
+The server listens for `join-event` and `join-room` with `{ eventId }`, joining clients to `event:<eventId>`.
+
+The server emits `leaderboard:update` after a correct submission and `submission-received` after any submission.
 
 ## Authentication
 

@@ -1,13 +1,19 @@
 const http = require('http');
 const { Server } = require('socket.io');
 const { MongoMemoryServer } = require('mongodb-memory-server');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 let app;
 
 async function startServer() {
   try {
     // Set up MongoMemoryServer BEFORE requiring app and env
-    if (!process.env.ADMIN_MONGODB_URI || !process.env.PARTICIPANT_MONGODB_URI) {
+    const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+    const hasNoDatabaseUris = !process.env.ADMIN_MONGODB_URI && !process.env.PARTICIPANT_MONGODB_URI;
+
+    if (isDevelopment && hasNoDatabaseUris) {
       const adminMemoryServer = await MongoMemoryServer.create({
         binary: { version: '7.0.24' },
         instance: { dbName: 'csea_admin' },

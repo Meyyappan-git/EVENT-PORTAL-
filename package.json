@@ -6,7 +6,17 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "test:watch": "node --test --watch",
+    "postinstall": "npm rebuild bcrypt --build-from-source",
+    "start:both": "concurrently -k -n BACKEND,FRONTEND -c blue,green \"node server.js\" \"cd frontend && npm run dev\"",
+    "dev:both": "concurrently -k -n BACKEND,FRONTEND -c blue,green \"node --watch server.js\" \"cd frontend && npm run dev\"",
+    "seed": "node scripts/seed-db.js",
+    "health": "node scripts/health-check.js",
+    "db:up": "docker compose up -d mongo-admin mongo-participant",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f",
+    "setup:env": "node scripts/setup-env.js"
   },
   "keywords": [
     "express",
@@ -29,6 +39,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "concurrently": "^10.0.5",
     "socket.io-client": "^4.8.3"
   }
 }

@@ -3,6 +3,7 @@ import axiosInstance from '../../api/axiosInstance';
 import LeaderboardTable from '../../components/LeaderboardTable';
 import StatCard from '../../components/StatCard';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
 
 const emptyEventForm = { name: '' };
 const emptyRoundForm = { eventId: '', name: '', status: 'OPEN' };
@@ -19,6 +20,7 @@ const emptyQuestionForm = {
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
+  const { socket } = useSocket();
   const [activeModule, setActiveModule] = useState('overview');
   const [leaderboard, setLeaderboard] = useState([]);
   const [submissions, setSubmissions] = useState([]);
@@ -80,6 +82,16 @@ export default function AdminDashboard() {
 
     boot();
   }, []);
+
+  useEffect(() => {
+    if (!socket) return undefined;
+    const refresh = () => {
+      loadEvents();
+      loadRounds();
+    };
+    socket.on('portal-updated', refresh);
+    return () => socket.off('portal-updated', refresh);
+  }, [socket]);
 
   const handleEventSubmit = async (event) => {
     event.preventDefault();
@@ -356,6 +368,31 @@ export default function AdminDashboard() {
           <StatCard label="Teams on board" value={leaderboard.length} accent="cyan" />
           <StatCard label="Live submissions" value={submissions.length} accent="purple" />
           <StatCard label="Active event" value={events[0]?.name || 'N/A'} accent="emerald" />
+        </div>
+
+        <div className="mb-6 rounded-[26px] border border-white/10 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/20">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Event overview</p>
+              <h2 className="mt-1 text-xl font-semibold text-white">Created events</h2>
+            </div>
+            <span className="rounded-full bg-cyan-400/10 px-3 py-1 text-sm font-semibold text-cyan-200">{events.length}</span>
+          </div>
+          {events.length === 0 ? (
+            <p className="text-sm text-slate-300">No events created yet. Open Events to create one.</p>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {events.map((event) => (
+                <div key={event._id} className="rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold text-white">{event.name}</h3>
+                    <span className="rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs font-semibold text-emerald-300">{event.status}</span>
+                  </div>
+                  <p className="mt-2 text-sm text-slate-300">{event.currentRoundId ? 'Round selected' : 'No round selected yet'}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">

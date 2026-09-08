@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-router.get('/', requireRole('ADMIN'), getEvents);
+router.get('/', requireRole('ADMIN', 'PARTICIPANT'), getEvents);
 router.get('/:id', requireRole('ADMIN', 'PARTICIPANT'), getEvent);
 router.post('/', requireRole('ADMIN'), createEvent);
 router.patch('/:id/current-round', requireRole('ADMIN'), setCurrentRound);

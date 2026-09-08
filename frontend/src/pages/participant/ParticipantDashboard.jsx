@@ -12,6 +12,7 @@ export default function ParticipantDashboard() {
   const { socket } = useSocket();
   const [activeModule, setActiveModule] = useState('overview');
   const [team, setTeam] = useState(null);
+  const [events, setEvents] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -20,7 +21,7 @@ export default function ParticipantDashboard() {
   const [teamLoading, setTeamLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const hasCompetitionData = Boolean(currentQuestion);
+  const hasCompetitionData = Boolean(currentQuestion || events.length);
 
   const loadTeam = async () => {
     try {
@@ -55,11 +56,20 @@ export default function ParticipantDashboard() {
     }
   };
 
+  const loadEvents = async () => {
+    try {
+      const response = await axiosInstance.get('/api/events');
+      setEvents(response.data.data || []);
+    } catch (err) {
+      setEvents([]);
+    }
+  };
+
   useEffect(() => {
     const loadAll = async () => {
       setLoading(true);
       try {
-        await Promise.all([loadTeam(), loadCurrentQuestion(), loadLeaderboard()]);
+        await Promise.all([loadTeam(), loadCurrentQuestion(), loadLeaderboard(), loadEvents()]);
       } finally {
         setLoading(false);
       }
@@ -76,7 +86,17 @@ export default function ParticipantDashboard() {
     };
 
     socket.on('leaderboard:update', handleLeaderboardUpdate);
-    return () => socket.off('leaderboard:update', handleLeaderboardUpdate);
+    const handlePortalUpdate = () => {
+      loadEvents();
+      loadCurrentQuestion();
+      loadLeaderboard();
+    };
+
+    socket.on('portal-updated', handlePortalUpdate);
+    return () => {
+      socket.off('leaderboard:update', handleLeaderboardUpdate);
+      socket.off('portal-updated', handlePortalUpdate);
+    };
   }, [socket]);
 
   const teamStats = useMemo(() => {
@@ -147,7 +167,7 @@ export default function ParticipantDashboard() {
   };
 
   const participantModules = [
-    { id: 'overview', label: 'Overview', disabled: !hasCompetitionData },
+    { id: 'overview', label: 'Overview', disabled: false },
     { id: 'team', label: 'Team', disabled: false },
     { id: 'question', label: 'Question', disabled: !hasCompetitionData },
     { id: 'leaderboard', label: 'Leaderboard', disabled: !hasCompetitionData },
@@ -288,6 +308,26 @@ export default function ParticipantDashboard() {
 
     return (
       <>
+        <div className="mb-6 rounded-[26px] border border-white/10 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/20">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Event overview</p>
+          <h2 className="mt-1 text-xl font-semibold text-white">Available events</h2>
+          {events.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-300">No events have been created yet.</p>
+          ) : (
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {events.map((event) => (
+                <div key={event._id} className="rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold text-white">{event.name}</h3>
+                    <span className="rounded-full bg-cyan-400/10 px-2.5 py-1 text-xs font-semibold text-cyan-200">{event.status}</span>
+                  </div>
+                  <p className="mt-2 text-sm text-slate-300">{event.currentRoundId ? 'Round in progress' : 'Waiting for a round'}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="mb-6 grid gap-4 md:grid-cols-3">
           {teamStats.map((item) => (
             <StatCard key={item.label} label={item.label} value={item.value} accent={item.accent} />

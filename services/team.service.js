@@ -81,10 +81,7 @@ async function joinTeam({ code, userId }) {
 }
 
 async function getMyTeam(userId) {
-  const user = await User.findById(userId).populate({
-    path: 'teamId',
-    populate: { path: 'members', model: 'User', select: 'name email role' },
-  });
+  const user = await User.findById(userId);
 
   if (!user || !user.teamId) {
     const err = new Error('User is not in a team');
@@ -92,7 +89,7 @@ async function getMyTeam(userId) {
     throw err;
   }
 
-  return user.teamId;
+  return Team.findById(user.teamId).populate('members');
 }
 
 module.exports = { createTeam, joinTeam, getMyTeam, MAX_TEAM_SIZE };

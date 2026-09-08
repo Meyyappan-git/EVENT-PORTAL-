@@ -20,4 +20,20 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('csea-token');
+      localStorage.removeItem('csea-user');
+
+      if (!window.location.pathname.startsWith('/auth')) {
+        window.location.assign('/auth/login/participant');
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
+
 export default axiosInstance;

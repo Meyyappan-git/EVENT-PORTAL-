@@ -10,8 +10,8 @@ if (missing.length) {
   throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
 }
 
-const defaultAdminUri = 'mongodb://127.0.0.1:27017/csea_admin_db';
-const defaultParticipantUri = 'mongodb://127.0.0.1:27017/csea_participant_db';
+const defaultAdminUri = 'mongodb://localhost:27017/csea_admin';
+const defaultParticipantUri = 'mongodb://localhost:27017/csea_participant';
 
 module.exports = {
   PORT: Number(process.env.PORT) || 5011,

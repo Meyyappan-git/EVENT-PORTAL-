@@ -55,7 +55,40 @@ textarea {
 input,
 select,
 textarea {
-  color: #0f172a;
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+option {
+  color: #e2e8f0;
+  background: #0f172a;
+}
+
+.auth-page {
+  color: #e2e8f0;
+}
+
+.auth-page label,
+.auth-page h1,
+.auth-page h2,
+.auth-page p {
+  color: #e2e8f0;
+}
+
+.auth-page input,
+.auth-page select,
+.auth-page textarea {
+  color: #0f172a !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.auth-page input::placeholder,
+.auth-page textarea::placeholder {
+  color: #64748b;
 }
 
 ::-webkit-scrollbar {
